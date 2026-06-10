@@ -25,4 +25,9 @@ quote-style = 'single'
 [dependency-groups]
 dev = [
     "ruff>=0.15.9",
+    "taskipy>=1.14.1",
 ]
+
+[tool.taskipy.tasks]
+pre_lint = 'ruff format'
+lint = 'ruff check --fix'
