@@ -208,4 +208,7 @@ __marimo__/
 
 # Logs
 logs/
+
+# MLFlow
 mlflow.db
+mlartifacts/*
