@@ -8,6 +8,7 @@ dependencies = [
     "mlflow>=3.13.0",
     "pandas[parquet]>=2.3.3",
     "pmdarima>=2.1.1",
+    "python-dotenv>=1.2.2",
     "scikit-learn>=1.8.0",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
