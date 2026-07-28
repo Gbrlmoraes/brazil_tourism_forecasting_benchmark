@@ -34,4 +34,4 @@ dev = [
 pre_lint = 'ruff format'
 lint = 'ruff check --fix'
 
-mlflow = 'mlflow server'
+mlflow = 'mlflow server --backend-store-uri sqlite:///mlruns.db'
