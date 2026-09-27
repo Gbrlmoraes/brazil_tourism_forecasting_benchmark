@@ -3,20 +3,27 @@ name = "brazil-tourism-forecasting-benchmark"
 version = "0.1.0"
 requires-python = ">=3.13"
 dependencies = [
+    "category-encoders>=2.11.1",
+    "datasetsforecast<1",
+    "humanize>=4.16.0",
     "ipykernel>=7.2.0",
     "ipywidgets>=8.1.8",
+    "lightgbm>=4.7.0",
     "mlflow>=3.13.0",
     "pandas[parquet]>=2.3.3",
     "plotly>=7.1.0",
     "pmdarima>=2.1.1",
     "pymannkendall>=1.4.3",
     "python-dotenv>=1.2.2",
+    "pytorch-lightning>=2.6.6",
     "scikit-learn>=1.8.0",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
     "statsmodels>=0.14.6",
+    "torch>=2.14.0",
     "tqdm>=4.67.3",
     "window-ops>=0.0.15",
+    "xgboost>=3.4.1",
 ]
 
 [tool.ruff.lint]
@@ -29,6 +36,7 @@ quote-style = 'single'
 
 [dependency-groups]
 dev = [
+    "nbconvert[webpdf]>=7.17.1",
     "ruff>=0.15.9",
     "taskipy>=1.14.1",
 ]
@@ -40,3 +48,6 @@ lint = 'ruff check --fix'
 mlflow = 'docker compose up -d mlflow'
 mlflow_stop = 'docker compose down'
 mlflow_logs = 'docker compose logs -f mlflow'
+mlflow_purge = 'python scripts/mlflow_purge.py'
+
+export_pdf = 'python scripts/export_notebooks_pdf.py'
