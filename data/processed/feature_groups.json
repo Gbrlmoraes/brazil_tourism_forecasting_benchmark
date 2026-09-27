@@ -1,0 +1,185 @@
+{
+  "target": "arrival_count",
+  "id_columns": [
+    "date",
+    "series_id",
+    "split"
+  ],
+  "horizon": 12,
+  "target_derived_groups": [
+    "lags",
+    "rolling",
+    "seasonal_rolling",
+    "ewma"
+  ],
+  "strategies": {
+    "recursive": {
+      "min_shift": 1,
+      "lags": [
+        1,
+        2,
+        12,
+        13,
+        24,
+        36
+      ],
+      "file": "features_recursive.parquet",
+      "groups": {
+        "lags": [
+          "arrival_count_lag_1",
+          "arrival_count_lag_2",
+          "arrival_count_lag_12",
+          "arrival_count_lag_13",
+          "arrival_count_lag_24",
+          "arrival_count_lag_36"
+        ],
+        "rolling": [
+          "arrival_count_rolling_3_mean",
+          "arrival_count_rolling_3_std",
+          "arrival_count_rolling_3_min",
+          "arrival_count_rolling_3_max",
+          "arrival_count_rolling_6_mean",
+          "arrival_count_rolling_6_std",
+          "arrival_count_rolling_6_min",
+          "arrival_count_rolling_6_max",
+          "arrival_count_rolling_12_mean",
+          "arrival_count_rolling_12_std",
+          "arrival_count_rolling_12_min",
+          "arrival_count_rolling_12_max"
+        ],
+        "seasonal_rolling": [
+          "arrival_count_12_seasonal_rolling_2_mean",
+          "arrival_count_12_seasonal_rolling_3_mean",
+          "arrival_count_12_seasonal_rolling_2_std",
+          "arrival_count_12_seasonal_rolling_3_std"
+        ],
+        "ewma": [
+          "arrival_count_ewma_span_3",
+          "arrival_count_ewma_span_6",
+          "arrival_count_ewma_span_12"
+        ],
+        "calendar": [
+          "cal_Month",
+          "cal_Quarter",
+          "cal_Is_quarter_end",
+          "cal_Is_year_end",
+          "cal_Elapsed"
+        ],
+        "fourier": [
+          "cal_Month_sin_1",
+          "cal_Month_sin_2",
+          "cal_Month_sin_3",
+          "cal_Month_cos_1",
+          "cal_Month_cos_2",
+          "cal_Month_cos_3"
+        ],
+        "domain": [
+          "is_covid",
+          "is_covid_recovery",
+          "days_in_month",
+          "is_covid_lag_1",
+          "is_covid_lag_2",
+          "is_covid_lag_12",
+          "is_covid_lag_13",
+          "is_covid_lag_24",
+          "is_covid_lag_36"
+        ]
+      }
+    },
+    "direct": {
+      "min_shift": 12,
+      "lags": [
+        12,
+        13,
+        24,
+        36
+      ],
+      "file": "features_direct.parquet",
+      "groups": {
+        "lags": [
+          "arrival_count_lag_12",
+          "arrival_count_lag_13",
+          "arrival_count_lag_24",
+          "arrival_count_lag_36"
+        ],
+        "rolling": [
+          "arrival_count_rolling_3_mean",
+          "arrival_count_rolling_3_std",
+          "arrival_count_rolling_3_min",
+          "arrival_count_rolling_3_max",
+          "arrival_count_rolling_6_mean",
+          "arrival_count_rolling_6_std",
+          "arrival_count_rolling_6_min",
+          "arrival_count_rolling_6_max",
+          "arrival_count_rolling_12_mean",
+          "arrival_count_rolling_12_std",
+          "arrival_count_rolling_12_min",
+          "arrival_count_rolling_12_max"
+        ],
+        "seasonal_rolling": [
+          "arrival_count_12_seasonal_rolling_2_mean",
+          "arrival_count_12_seasonal_rolling_3_mean",
+          "arrival_count_12_seasonal_rolling_2_std",
+          "arrival_count_12_seasonal_rolling_3_std"
+        ],
+        "ewma": [
+          "arrival_count_ewma_span_3",
+          "arrival_count_ewma_span_6",
+          "arrival_count_ewma_span_12"
+        ],
+        "calendar": [
+          "cal_Month",
+          "cal_Quarter",
+          "cal_Is_quarter_end",
+          "cal_Is_year_end",
+          "cal_Elapsed"
+        ],
+        "fourier": [
+          "cal_Month_sin_1",
+          "cal_Month_sin_2",
+          "cal_Month_sin_3",
+          "cal_Month_cos_1",
+          "cal_Month_cos_2",
+          "cal_Month_cos_3"
+        ],
+        "domain": [
+          "is_covid",
+          "is_covid_recovery",
+          "days_in_month",
+          "is_covid_lag_12",
+          "is_covid_lag_13",
+          "is_covid_lag_24",
+          "is_covid_lag_36"
+        ]
+      }
+    }
+  },
+  "parameters": {
+    "rolling_windows": [
+      3,
+      6,
+      12
+    ],
+    "rolling_aggs": [
+      "mean",
+      "std",
+      "min",
+      "max"
+    ],
+    "seasonal_period": 12,
+    "seasonal_windows": [
+      2,
+      3
+    ],
+    "seasonal_aggs": [
+      "mean",
+      "std"
+    ],
+    "ewma_spans": [
+      3,
+      6,
+      12
+    ],
+    "fourier_terms": 3
+  }
+}
