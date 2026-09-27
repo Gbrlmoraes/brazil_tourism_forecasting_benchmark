@@ -211,4 +211,7 @@ logs/
 
 # MLFlow
 mlflow.db
+mlruns.db
 mlartifacts/*
+*/mlruns/*
+mlflow_data/
