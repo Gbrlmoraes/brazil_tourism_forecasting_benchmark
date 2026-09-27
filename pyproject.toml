@@ -7,13 +7,16 @@ dependencies = [
     "ipywidgets>=8.1.8",
     "mlflow>=3.13.0",
     "pandas[parquet]>=2.3.3",
+    "plotly>=7.1.0",
     "pmdarima>=2.1.1",
+    "pymannkendall>=1.4.3",
     "python-dotenv>=1.2.2",
     "scikit-learn>=1.8.0",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
     "statsmodels>=0.14.6",
     "tqdm>=4.67.3",
+    "window-ops>=0.0.15",
 ]
 
 [tool.ruff.lint]
@@ -34,4 +37,6 @@ dev = [
 pre_lint = 'ruff format'
 lint = 'ruff check --fix'
 
-mlflow = 'mlflow server --backend-store-uri sqlite:///mlruns.db'
+mlflow = 'docker compose up -d mlflow'
+mlflow_stop = 'docker compose down'
+mlflow_logs = 'docker compose logs -f mlflow'
