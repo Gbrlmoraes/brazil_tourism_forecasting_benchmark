@@ -89,9 +89,9 @@ with the `MTSF_REPO_PATH` environment variable).
 2. **Feature Engineering:** lags, rolling and seasonal-rolling windows, EWMA, calendar (categorical and Fourier) and elapsed-time features, domain (COVID) flags
 3. **Modeling:**
    - Statistical baseline: SARIMAX, with `none`/`log`/AutoML (`AutoStationaryTransformer`) target processing
-   - Machine Learning: Linear Regression, Ridge, Lasso, LightGBM and XGBoost, with recursive and direct multi-step strategies
+   - Machine Learning: Ridge and Lasso (penalty chosen with temporal cross-validation), LightGBM and XGBoost (tree parameters tuned with Optuna), with recursive and single-model direct multi-step strategies; target processing adds a seasonal log difference (`log yₜ − log yₜ₋₁₂`) so the trees forecast growth instead of levels
    - Deep Learning: PatchTST (planned)
-4. **Evaluation:** RMSE, MAE, MAPE, R², MASE and Forecast Bias against naive and seasonal-naive baselines, tracked per experiment run in MLflow. Models are selected on the validation year; the final notebook (planned) refits the selected models and scores them once on the test year
+4. **Evaluation:** repeated holdout over four non-overlapping 12-month validation windows (two before the pandemic and the two most recent years, the last one being the validation set; the dates follow the data). Models are ranked by the **mean seasonal MASE** over these origins, with RMSE, MAE, MAPE, R² and Forecast Bias also reported, against naive and seasonal-naive baselines, tracked per experiment run in MLflow. The final notebook (planned) refits the selected models and scores them once on the test year. The pandemic is taken to start in April 2020
 
 ## Experiment Tracking
 
