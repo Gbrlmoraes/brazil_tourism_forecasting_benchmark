@@ -10,6 +10,7 @@ dependencies = [
     "ipywidgets>=8.1.8",
     "lightgbm>=4.7.0",
     "mlflow>=3.13.0",
+    "optuna>=5.0.0",
     "pandas[parquet]>=2.3.3",
     "plotly>=7.1.0",
     "pmdarima>=2.1.1",
