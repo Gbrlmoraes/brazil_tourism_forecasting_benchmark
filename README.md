@@ -74,7 +74,8 @@ with the `MTSF_REPO_PATH` environment variable).
 │   ├── 4_working_with_pandemic_data.ipynb # COVID-gap imputation methods
 │   ├── 5_arima_model_testing.ipynb        # SARIMAX baseline (statistical model)
 │   ├── 6_feature_engineering.ipynb        # lags, rolling/seasonal windows, calendar features
-│   └── 7_ml_model_testing.ipynb           # Linear/Ridge/Lasso/LightGBM/XGBoost benchmark
+│   ├── 7_ml_model_testing.ipynb           # Ridge/Lasso/LightGBM/XGBoost benchmark (local)
+│   └── 8_global_ml_model_testing.ipynb    # global models on route × region × origin series
 ├── scripts/
 │   ├── export_notebooks_pdf.py            # task export_pdf
 │   ├── mlflow_purge.py                    # task mlflow_purge
@@ -90,6 +91,7 @@ with the `MTSF_REPO_PATH` environment variable).
 3. **Modeling:**
    - Statistical baseline: SARIMAX, with `none`/`log`/AutoML (`AutoStationaryTransformer`) target processing
    - Machine Learning: Ridge and Lasso (penalty chosen with temporal cross-validation), LightGBM and XGBoost (tree parameters tuned with Optuna), with recursive and single-model direct multi-step strategies; target processing adds a seasonal log difference (`log yₜ − log yₜ₋₁₂`) so the trees forecast growth instead of levels
+   - Global Machine Learning: one model trained on a panel of series (access route × arrival region × origin subdivision, plus a remainder and the total), forecasting the total bottom-up
    - Deep Learning: PatchTST (planned)
 4. **Evaluation:** repeated holdout over four non-overlapping 12-month validation windows (two before the pandemic and the two most recent years, the last one being the validation set; the dates follow the data). Models are ranked by the **mean seasonal MASE** over these origins, with RMSE, MAE, MAPE, R² and Forecast Bias also reported, against naive and seasonal-naive baselines, tracked per experiment run in MLflow. The final notebook (planned) refits the selected models and scores them once on the test year. The pandemic is taken to start in April 2020
 
