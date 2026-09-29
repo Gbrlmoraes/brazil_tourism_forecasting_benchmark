@@ -11,15 +11,23 @@ A comparative benchmarking study of time series forecasting techniques applied t
 
 ## Research Objective
 
-Compare three classes of forecasting models on the task of predicting monthly international tourist arrivals to Brazil:
+Compare three classes of forecasting models on the task of predicting total monthly international tourist arrivals to Brazil, 12 months ahead:
 
-| Approach | Model |
-|---|---|
-| Statistical baseline | ARIMA |
-| Machine Learning | XGBoost |
-| Deep Learning | PatchTST (Patch Time Series Transformer) |
+| Approach | Models | Notebook |
+|---|---|---|
+| Statistical | SARIMAX (with COVID regressors) | 5 |
+| Machine Learning, local | Ridge, Lasso, LightGBM and XGBoost trained on the total series | 7 |
+| Machine Learning, global | the same four families trained on a panel of related series (access route × arrival region × origin subdivision), forecasting the total bottom-up | 8 |
+| Foundation model (transformer) | TimesFM 3.0 (Google Research), zero-shot: no training on this series | 9 |
 
-Models are evaluated on: **RMSE**, **MAE**, **MAPE**, and **R²**, plus qualitative criteria (explainability, scalability, training time).
+All approaches share one evaluation protocol, so their results are directly comparable:
+
+- **Selection metric:** the mean **seasonal MASE** over four 12-month validation windows (see
+  *Methodology*), against the seasonal-naive forecast ("same month last year").
+- **Also reported:** RMSE, MAE, MAPE, R² and Forecast Bias on the validation year, the worst
+  validation window, and (TimesFM) the coverage of the 80% forecast interval.
+- **Qualitative criteria:** explainability (feature importance), scalability and computational
+  cost (fit time).
 
 ## Dataset
 
@@ -33,7 +41,7 @@ Notebook `2` splits the monthly series into three consecutive blocks:
 | Split | Months | Used for |
 |---|---|---|
 | train | everything before the validation year | fitting the models |
-| validation | the 12 months before the test year | comparing and selecting models (notebooks 5 and 7) |
+| validation | the 12 months before the test year | comparing and selecting models (notebooks 5, 7, 8 and 9), together with three earlier yearly windows cut from the training data |
 | test | the **last 12 months** of the data | the final evaluation only (final notebook) |
 
 The EDA and feature engineering notebooks see train + validation; the test set is only read
@@ -51,10 +59,14 @@ uv run task mlflow          # start the local MLflow tracking server (Docker req
 uv run jupyter lab          # open the notebooks
 ```
 
-Notebooks 3, 5 and 6 import feature-engineering and target-transformation helpers from the
-companion repository of *Modern Time Series Forecasting with Python* (Joseph & Tackes, 2E),
-expected as a sibling folder `../Modern-Time-Series-Forecasting-with-Python-2E` (overridable
-with the `MTSF_REPO_PATH` environment variable).
+Notebooks 3–9 import feature-engineering, forecasting and target-transformation helpers
+from the companion repository of *Modern Time Series Forecasting with Python* (Joseph &
+Tackes, 2E), expected as a sibling folder `../Modern-Time-Series-Forecasting-with-Python-2E`
+(overridable with the `MTSF_REPO_PATH` environment variable).
+
+Notebook 9 downloads the TimesFM 3.0 weights (`google/timesfm-3.0-pytorch`) from Hugging Face
+on its first run and runs them on the CPU. The TimesFM 3.0 weights are licensed for research
+and non-commercial use only (the code is Apache-2.0).
 
 ## Project Structure
 
@@ -75,7 +87,8 @@ with the `MTSF_REPO_PATH` environment variable).
 │   ├── 5_arima_model_testing.ipynb        # SARIMAX baseline (statistical model)
 │   ├── 6_feature_engineering.ipynb        # lags, rolling/seasonal windows, calendar features
 │   ├── 7_ml_model_testing.ipynb           # Ridge/Lasso/LightGBM/XGBoost benchmark (local)
-│   └── 8_global_ml_model_testing.ipynb    # global models on route × region × origin series
+│   ├── 8_global_ml_model_testing.ipynb    # global models on route × region × origin series
+│   └── 9_timesfm_model_testing.ipynb      # TimesFM 3.0 zero-shot foundation model
 ├── scripts/
 │   ├── export_notebooks_pdf.py            # task export_pdf
 │   ├── mlflow_purge.py                    # task mlflow_purge
@@ -86,14 +99,16 @@ with the `MTSF_REPO_PATH` environment variable).
 
 ## Methodology
 
-1. **Preprocessing:** encoding/category standardization, missing value treatment, chronological train/validation/test split
-2. **Feature Engineering:** lags, rolling and seasonal-rolling windows, EWMA, calendar (categorical and Fourier) and elapsed-time features, domain (COVID) flags
-3. **Modeling:**
-   - Statistical baseline: SARIMAX, with `none`/`log`/AutoML (`AutoStationaryTransformer`) target processing
-   - Machine Learning: Ridge and Lasso (penalty chosen with temporal cross-validation), LightGBM and XGBoost (tree parameters tuned with Optuna), with recursive and single-model direct multi-step strategies; target processing adds a seasonal log difference (`log yₜ − log yₜ₋₁₂`) so the trees forecast growth instead of levels
-   - Global Machine Learning: one model trained on a panel of series (access route × arrival region × origin subdivision, plus a remainder and the total), forecasting the total bottom-up
-   - Deep Learning: PatchTST (planned)
-4. **Evaluation:** repeated holdout over four non-overlapping 12-month validation windows (two before the pandemic and the two most recent years, the last one being the validation set; the dates follow the data). Models are ranked by the **mean seasonal MASE** over these origins, with RMSE, MAE, MAPE, R² and Forecast Bias also reported, against naive and seasonal-naive baselines, tracked per experiment run in MLflow. The final notebook (planned) refits the selected models and scores them once on the test year. The pandemic is taken to start in April 2020
+1. **Preprocessing** (notebooks 0–2): unification of the yearly source files, category standardization, and a chronological train / validation / test split that rolls forward with the data.
+2. **Exploratory analysis** (notebooks 3–4): trend, seasonality, heteroscedasticity and stationarity tests, target transformations, and a comparison of methods to impute the COVID gap.
+3. **Feature engineering** (notebook 6): lags chosen from the ACF/PACF, rolling and seasonal-rolling windows, EWMA, calendar (categorical and Fourier) and elapsed-time features, and COVID flags, with a leakage check.
+4. **Modeling.** Every notebook runs a full grid of choices and logs it to MLflow:
+   - **SARIMAX** (notebook 5): orders × target processing (`none`, `log`, AutoML `AutoStationaryTransformer`) × training window, with COVID and recovery regressors.
+   - **Local Machine Learning** (notebook 7): Ridge and Lasso (penalty chosen by temporal cross-validation), LightGBM and XGBoost × target processing (including a seasonal log difference, `log yₜ − log yₜ₋₁₂`, so the trees forecast growth instead of levels) × training window × COVID handling (keep or remove 2020–2022) × multi-step strategy (recursive or single-model direct) × feature set. The best configuration of every tree family × training window is then tuned with Optuna.
+   - **Global Machine Learning** (notebook 8): the same families trained on one panel of 19 component series plus a remainder and the total, with static series features; the total is forecast bottom-up (the sum of the components and the remainder) and compared with the direct forecast.
+   - **Foundation model** (notebook 9): TimesFM 3.0, zero-shot on the total series, testing what the model reads: context window, COVID handling (keep, remove or mask as missing), target processing, calendar and COVID covariates, and symmetric averaging.
+5. **Evaluation:** a repeated holdout over four non-overlapping 12-month validation windows, two before the pandemic and the two most recent years (the last one is the validation set; all dates follow the data). Configurations are ranked by the **mean seasonal MASE** over these windows, with the worst window, RMSE, MAE, MAPE, R² and Forecast Bias also reported, against naive and seasonal-naive baselines. The choices are compared with p95 heatmaps (the value that only the best 5% of the configurations sharing two choices beat). The pandemic is taken to start in April 2020.
+6. **Final evaluation** (planned): the selected models are refit on train + validation and scored once on the test year.
 
 ## Experiment Tracking
 
@@ -137,6 +152,7 @@ notebook (notebooks are not re-executed).
 
 ## References
 
+- Das, A.; Kong, W.; Sen, R.; Zhou, Y. (2024). A decoder-only foundation model for time-series forecasting. *Proceedings of the 41st International Conference on Machine Learning (ICML)*. [arXiv:2310.10688](https://arxiv.org/abs/2310.10688). Code and weights: [google-research/timesfm](https://github.com/google-research/timesfm).
 - Géron, A. (2021). *Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow*. 2nd ed. Alta Books.
 - Gujarati, D. N. (2019). *Econometrics: Principles, Theory and Practical Applications*. Saraivauni.
 - Joseph, M.; Tackes, J. (2024). *Modern Time Series Forecasting with Python*. Packt Publishing.
