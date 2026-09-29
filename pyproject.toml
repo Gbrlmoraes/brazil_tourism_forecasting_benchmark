@@ -21,6 +21,7 @@ dependencies = [
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
     "statsmodels>=0.14.6",
+    "timesfm[torch]>=3.0.2",
     "torch>=2.14.0",
     "tqdm>=4.67.3",
     "window-ops>=0.0.15",
