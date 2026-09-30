@@ -88,7 +88,9 @@ and non-commercial use only (the code is Apache-2.0).
 │   ├── 6_feature_engineering.ipynb        # lags, rolling/seasonal windows, calendar features
 │   ├── 7_ml_model_testing.ipynb           # Ridge/Lasso/LightGBM/XGBoost benchmark (local)
 │   ├── 8_global_ml_model_testing.ipynb    # global models on route × region × origin series
-│   └── 9_timesfm_model_testing.ipynb      # TimesFM 3.0 zero-shot foundation model
+│   ├── 9_timesfm_model_testing.ipynb      # TimesFM 3.0 zero-shot foundation model
+│   ├── 10_ensembling_and_stacking.ipynb   # mean, median, inverse-MASE mean and stacking
+│   └── 11_validation_overview.ipynb       # validation overview of the selected approaches
 ├── scripts/
 │   ├── export_notebooks_pdf.py            # task export_pdf
 │   ├── mlflow_purge.py                    # task mlflow_purge
@@ -108,7 +110,9 @@ and non-commercial use only (the code is Apache-2.0).
    - **Global Machine Learning** (notebook 8): the same families trained on one panel of 19 component series plus a remainder and the total, with static series features; the total is forecast bottom-up (the sum of the components and the remainder) and compared with the direct forecast.
    - **Foundation model** (notebook 9): TimesFM 3.0, zero-shot on the total series, testing what the model reads: context window, COVID handling (keep, remove or mask as missing), target processing, calendar and COVID covariates, and symmetric averaging.
 5. **Evaluation:** a repeated holdout over four non-overlapping 12-month validation windows, two before the pandemic and the two most recent years (the last one is the validation set; all dates follow the data). Configurations are ranked by the **mean seasonal MASE** over these windows, with the worst window, RMSE, MAE, MAPE, R² and Forecast Bias also reported, against naive and seasonal-naive baselines. The choices are compared with p95 heatmaps (the value that only the best 5% of the configurations sharing two choices beat). The pandemic is taken to start in April 2020.
-6. **Final evaluation** (planned): the selected models are refit on train + validation and scored once on the test year.
+6. **Ensembling and stacking** (notebook 10): the best configuration of each approach is combined by the mean, the median, an inverse-MASE weighted mean, a Huber-regression stack (free weights) and linear, Ridge and Lasso stacks (non-negative weights; Ridge and Lasso penalties chosen by nested cross-validation), with the stacking weights learned leaving one validation origin out and everything evaluated on the same validation origins.
+7. **Validation overview** (notebook 11): the selected configuration of every approach, the best ensemble and the best stacking, compared overall, before vs after the pandemic, and in flat vs rapid-growth validation years (evaluation only, no re-selection).
+8. **Final evaluation** (planned): the selected models are refit on train + validation and scored once on the test year.
 
 ## Experiment Tracking
 
