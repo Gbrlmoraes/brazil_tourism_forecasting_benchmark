@@ -59,7 +59,7 @@ uv run task mlflow          # start the local MLflow tracking server (Docker req
 uv run jupyter lab          # open the notebooks
 ```
 
-Notebooks 3–9 import feature-engineering, forecasting and target-transformation helpers
+Notebooks 3–9 (and notebook 12, through `benchmark_pipelines/`) import feature-engineering, forecasting and target-transformation helpers
 from the companion repository of *Modern Time Series Forecasting with Python* (Joseph &
 Tackes, 2E), expected as a sibling folder `../Modern-Time-Series-Forecasting-with-Python-2E`
 (overridable with the `MTSF_REPO_PATH` environment variable).
@@ -90,7 +90,9 @@ and non-commercial use only (the code is Apache-2.0).
 │   ├── 8_global_ml_model_testing.ipynb    # global models on route × region × origin series
 │   ├── 9_timesfm_model_testing.ipynb      # TimesFM 3.0 zero-shot foundation model
 │   ├── 10_ensembling_and_stacking.ipynb   # mean, median, inverse-MASE mean and stacking
-│   └── 11_validation_overview.ipynb       # validation overview of the selected approaches
+│   ├── 11_validation_overview.ipynb       # validation overview of the selected approaches
+│   └── 12_final_results.ipynb             # retrain on train + validation, score on the test year
+├── benchmark_pipelines/                   # pipelines of notebooks 5, 7, 8 and 9 for notebook 12
 ├── scripts/
 │   ├── export_notebooks_pdf.py            # task export_pdf
 │   ├── mlflow_purge.py                    # task mlflow_purge
@@ -112,7 +114,7 @@ and non-commercial use only (the code is Apache-2.0).
 5. **Evaluation:** a repeated holdout over four non-overlapping 12-month validation windows, two before the pandemic and the two most recent years (the last one is the validation set; all dates follow the data). Configurations are ranked by the **mean seasonal MASE** over these windows, with the worst window, RMSE, MAE, MAPE, R² and Forecast Bias also reported, against naive and seasonal-naive baselines. The choices are compared with p95 heatmaps (the value that only the best 5% of the configurations sharing two choices beat). The pandemic is taken to start in April 2020.
 6. **Ensembling and stacking** (notebook 10): the best configuration of each approach is combined by the mean, the median, an inverse-MASE weighted mean, a Huber-regression stack (free weights) and linear, Ridge and Lasso stacks (non-negative weights; Ridge and Lasso penalties chosen by nested cross-validation), with the stacking weights learned leaving one validation origin out and everything evaluated on the same validation origins.
 7. **Validation overview** (notebook 11): the selected configuration of every approach, the best ensemble and the best stacking, compared overall, before vs after the pandemic, and in flat vs rapid-growth validation years (evaluation only, no re-selection).
-8. **Final evaluation** (planned): the selected models are refit on train + validation and scored once on the test year.
+8. **Final evaluation** (notebook 12): every approach of notebook 11 is retrained on train + validation with its selected configuration (after reproducing its logged validation forecasts), the combination weights are fitted on the validation forecasts only, and all forecasts are frozen before the test year is read and scored once.
 
 ## Experiment Tracking
 
